@@ -160,7 +160,7 @@ $$
 
 This matches what we have seen previously in cheat engine's memory viewer!
 
-![ESP-Image1](/Proj-Blog/assets/images/part-4/CE-proj.png)
+![ESP-Image1](/Proj-Blog/assets/images/part-4/CE-Proj.png)
 
 ### **Reversing Insight** ###
 
