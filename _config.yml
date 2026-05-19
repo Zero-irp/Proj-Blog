@@ -1,0 +1,18 @@
+title: "Math at Scale: Reversing the AAA Projection Matrix"
+description: "Reversing The Construction Of The Perspective-Projection Matrix"
+baseurl: "/Proj-Blog"
+url: "https://zero-irp.github.io"
+theme: minima
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+
+markdown: kramdown
+highlighter: rouge
+
+author: z1rp
+email: Zer0_1rp@proton.me
+show_excerpts: true
+
+minima:
+  skin: dark

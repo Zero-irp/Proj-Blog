@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Part 6: Reversing Construction of the Inverse Projection Matrix | Math at Scale: Reversing the AAA Projection Matrix</title>
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="Part 6: Reversing Construction of the Inverse Projection Matrix" />
+<meta name="author" content="z1rp" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Reversing The Construction Of The Perspective-Projection Matrix" />
+<meta property="og:description" content="Reversing The Construction Of The Perspective-Projection Matrix" />
+<link rel="canonical" href="http://localhost:4000/Proj-Blog/part-6-reversing-inverse-projection-matrix/" />
+<meta property="og:url" content="http://localhost:4000/Proj-Blog/part-6-reversing-inverse-projection-matrix/" />
+<meta property="og:site_name" content="Math at Scale: Reversing the AAA Projection Matrix" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2026-04-04T00:00:00+05:30" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Part 6: Reversing Construction of the Inverse Projection Matrix" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"z1rp"},"dateModified":"2026-04-04T00:00:00+05:30","datePublished":"2026-04-04T00:00:00+05:30","description":"Reversing The Construction Of The Perspective-Projection Matrix","headline":"Part 6: Reversing Construction of the Inverse Projection Matrix","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/Proj-Blog/part-6-reversing-inverse-projection-matrix/"},"url":"http://localhost:4000/Proj-Blog/part-6-reversing-inverse-projection-matrix/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/Proj-Blog/assets/css/style.css">
+  <link rel="stylesheet" href="/Proj-Blog/assets/css/syntax.css"><link type="application/atom+xml" rel="alternate" href="http://localhost:4000/Proj-Blog/feed.xml" title="Math at Scale: Reversing the AAA Projection Matrix" /></head>
+<!-- ✅ MathJax setup -->
+  <script>
+    MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <!-- ✅ End MathJax setup -->
+
+  <body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/Proj-Blog/">Math at Scale: Reversing the AAA Projection Matrix</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/Proj-Blog/">Index</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Part 6: Reversing Construction of the Inverse Projection Matrix</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2026-04-04T00:00:00+05:30" itemprop="datePublished">Apr 4, 2026
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <style>
+.ida-code{
+  background:#1e1e1e;
+  color:#dcdcdc;
+  padding:12px;
+  border-radius:8px;
+  font-family: Consolas, "Liberation Mono", Menlo, monospace;
+  font-size:14px;
+  line-height:1.4;
+  overflow-x:auto;
+  white-space: pre; /* preserve spaces and linebreaks */
+}
+
+/* token classes you can use inside the div */
+.ida-code .kw    { color:#569cd6; } /* keywords */
+.ida-code .type  { color:#4ec9b0; } /* types */
+.ida-code .fn    { color:#dcdcaa; } /* functions / intrinsics */
+.ida-code .num   { color:#b5cea8; } /* numbers / hex */
+.ida-code .var   { color:#9cdcfe; } /* variables */
+.ida-code .const { color:#ce9178; } /* globals / constants */
+.ida-code .comment{ color:#6a9955; font-style:italic; }
+</style>
+
+<style>
+.post-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid #444;
+  font-family: Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 15px;
+}
+.post-nav a {
+  color: #569cd6;
+  text-decoration: none;
+  padding: 10px 16px;
+  background: #1e1e1e;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+}
+.post-nav a:hover {
+  background: #2d2d2d;
+}
+</style>
+
+<p>Now for the final matrix getting constructed by the else block!</p>
+
+<p>I have isolated all lines relating to the construction of the Inverse Projection Matrix:</p>
+
+<p><img src="/Proj-Blog/assets/images/part-6/ida-inv-proj.png" alt="ESP-Image1" /></p>
+
+<p>Let’s start with row 0.</p>
+
+<h3 id="row-0"><strong>Row 0:</strong></h3>
+
+<div class="ida-code">*(<span class="type">__m128</span> *)(<span class="var">a1</span> + <span class="num">0x130</span>) = <span class="fn">_mm_unpacklo_ps</span>(<span class="fn">_mm_unpacklo_ps</span>(<span class="var">fovX_val</span>, (<span class="type">__m128</span>)<span class="num">0LL</span>), (<span class="type">__m128</span>)<span class="num">0LL</span>);
+</div>
+
+<p>Where the last value for fovX_val was:</p>
+
+<div class="ida-code"><span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// fovX_val = FovX / 2</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">19</span>    <span class="var">fovX_val</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] = <span class="var">fovX_val</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] * <span class="num">0.5</span>;
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// Arg: fovX_val. Result: fovX_val = tan(FovX / 2)</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">20</span>    <span class="fn">ucrtBase_Tanf</span>(); 
+</div>
+
+<p>so Row 0 = [tan(fovX/2), 0, 0, 0]</p>
+
+<h3 id="row-1"><strong>Row 1:</strong></h3>
+
+<div class="ida-code">*(<span class="type">__m128</span> *)(<span class="var">a1</span> + <span class="num">0x140</span>) = <span class="fn">_mm_unpacklo_ps</span>((<span class="type">__m128</span>)<span class="num">0LL</span>, <span class="fn">_mm_unpacklo_ps</span>(<span class="var">fovY_val</span>, (<span class="type">__m128</span>)<span class="num">0LL</span>));
+</div>
+
+<p>Where the last value for fovY_val was:</p>
+
+<div class="ida-code"><span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// fovY_val = FovY / 2</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">22</span>    <span class="var">fovY_val</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] = <span class="var">fovY_val</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] * <span class="num">0.5</span>;
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// Arg: fovY_val. Result: fovY_val = tan(FovY / 2)</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">25</span>    <span class="fn">ucrtBase_Tanf</span>(); 
+</div>
+
+<p>so Row 1 = [0, tan(fovY/2), 0, 0]</p>
+
+<h3 id="row-2"><strong>Row 2:</strong></h3>
+
+<div class="ida-code">*(<span class="type">__m128</span> *)(<span class="var">a1</span> + <span class="num">0x150</span>) = <span class="fn">_mm_unpacklo_ps</span>((<span class="type">__m128</span>)<span class="num">0LL</span>, <span class="fn">_mm_unpacklo_ps</span>((<span class="type">__m128</span>)<span class="num">0LL</span>, <span class="var">v45</span>));
+</div>
+
+<p>“v45” comes from:</p>
+
+<div class="ida-code"><span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>  <span class="comment">// Calculate zNear - zFar</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">33</span>  <span class="var">v45</span> = <span class="var">zNear</span>;
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">34</span>  <span class="var">v45</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] = <span class="var">zNear</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] - <span class="var">zFar</span>.<span class="var">m128_f32</span>[<span class="num">0</span>];
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>  <span class="comment">// Modifying zFar in place: zFar = zFar * zNear</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">42</span>  <span class="var">zFar</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] = <span class="var">zFar</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] * <span class="var">zNear</span>.<span class="var">m128_f32</span>[<span class="num">0</span>];
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>  <span class="comment">// Used for inverse Projection</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">45</span>  <span class="var">v45</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] = <span class="var">v45</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] / <span class="var">zFar</span>.<span class="var">m128_f32</span>[<span class="num">0</span>]; 
+</div>
+
+<p>I don’t feel like this needs explaining, all very self explanatory:</p>
+
+\[\large v_{45} = \frac{z_{near} - z_{far}}{z_{far} \cdot z_{near}}\]
+
+<p>Final Unpack: [0, 0, 0, (near - far) / (far * near)]</p>
+
+<h3 id="row-3"><strong>Row 3:</strong></h3>
+
+<div class="ida-code">*(<span class="type">__m128</span> *)(<span class="var">a1</span> + <span class="num">0x160</span>) = <span class="fn">_mm_unpacklo_ps</span>(
+                            <span class="fn">_mm_unpacklo_ps</span>(<span class="var">tan_fovX_half_save</span>, (<span class="type">__m128</span>)<span class="num">0xBF800000</span>),
+                            <span class="fn">_mm_unpacklo_ps</span>(<span class="var">tan_fovY_half_save</span>, <span class="var">v50</span>));
+</div>
+
+<p>We already know “tan_fovX_half_save” is tan(fovX/2) which just before get’s multiplied with “0” while “tan_fovY_half_save” which previously had the value of “tan(fovY/2)” is multiplied 
+with our anomaly “0.1299999952”.</p>
+
+<p>These calculations are done in these lines:</p>
+
+<div class="ida-code"><span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>  <span class="comment">// Apply asymmetric offset (0.13) to tan(FovY/2)</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">49</span>  <span class="var">tan_fovY_half_save</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] = <span class="var">fovY_val</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] * *(<span class="type">float</span> *)(<span class="var">a1</span> + <span class="num">0x42C</span>); <span class="comment">// 0.1299999952</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>  
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>  <span class="comment">// Apply X-offset (0.0) to tan(FovX/2)</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">50</span>  <span class="var">tan_fovX_half_save</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] = <span class="var">fovX_val</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] * *(<span class="type">float</span> *)(<span class="var">a1</span> + <span class="num">0x428</span>); <span class="comment">// 0.0</span>
+</div>
+
+<p>Next, “v50” is simply:</p>
+
+<div class="ida-code"><span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>  <span class="comment">// Calculate 1.0 / zNear</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">51</span>  <span class="var">v50</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] = <span class="num">1.0</span> / <span class="var">zNear</span>.<span class="var">m128_f32</span>[<span class="num">0</span>];
+</div>
+
+<p>and “0xBF800000” is “-1”</p>
+
+<p>Final Unpack: [0, tan(fovY/2)*0.13, -1, 1/near]</p>
+
+<h3 id="final-layout"><strong>Final Layout:</strong></h3>
+
+\[\begin{bmatrix}
+\tan(fovX/2) &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; \tan(fovY/2) &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; \frac{near - far}{far \cdot near} \\
+0 &amp; \tan(fovY/2) \cdot 0.13 &amp; -1 &amp; \frac{1}{near}
+\end{bmatrix}\]
+
+<p>This matches what we have seen previously in cheat engine’s memory viewer!</p>
+
+<p><img src="/Proj-Blog/assets/images/part-4/CE-proj.png" alt="ESP-Image1" /></p>
+
+<h3 id="reversing-insight"><strong>Reversing Insight</strong></h3>
+
+<p>The engine is doing something incredibly smart here. Instead of relying on a generic 4x4 matrix inversion algorithm (like Cramer’s rule) which requires a heavy, separate function call 
+and eats up valuable CPU cycles. It performs a heavily optimized algebraic “fast inverse” inline. Because a projection matrix has so many known zeroes, the developers hardcoded the exact 
+algebraic inverse right into the function.</p>
+
+<blockquote>
+  <p>Bit of a side track - Initially, when staring at this block, I didn’t even realize I was looking at an Inverse Projection Matrix. In hindsight it’s very obviously an inverse projection. 
+We unconsciously look for standard math library calls (like a <code class="language-plaintext highlighter-rouge">MatrixInverse</code>function), so when it’s just raw, inline floating-point math, it’s easy to miss.</p>
+
+  <p>So how do you prove a hunch when the code is ambiguous?</p>
+
+  <p>The Scientific Method of Hypothesis ➔ Observation ➔ Conclusion!</p>
+
+  <ul>
+    <li><strong>Hypothesis:</strong> This weird block of inline math is manually constructing the Inverse Projection Matrix.</li>
+    <li><strong>Observation:</strong> I dumped the originally constructed Projection Matrix directly from memory and ran it through a standard matrix inversion script on my own. I then compared my calculated output against the values the engine was generating in this second matrix.</li>
+    <li><strong>Conclusion:</strong> The floats lined up exactly. Hypothesis confirmed! we have found the Inverse Projection.</li>
+  </ul>
+</blockquote>
+
+<h3 id="the-full-picture"><strong>The Full Picture:</strong></h3>
+
+<div class="ida-code"><span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;"> 1</span>  <span class="kw">else</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;"> 2</span>  {
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// --- 1. Initial Setup &amp; FovX ---</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// Load FovX (radians) from a1 + 0x234</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;"> 3</span>    <span class="var">fovX_calc</span> = (<span class="type">__m128</span>)*(<span class="type">unsigned int</span> *)(<span class="var">a1</span> + <span class="num">0x234</span>);
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;"> 4</span>    <span class="var">fovX_calc</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] = <span class="var">fovX_calc</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] * <span class="num">0.5</span>;
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// Arg: fovX_calc. Result: fovX_calc = tan(FovX / 2)</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;"> 5</span>    <span class="fn">ucrtBase_Tanf</span>(); 
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;"> 6</span>    <span class="var">fovY_calc</span> = <span class="var">fovX_calc</span>;
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;"> 7</span>    <span class="var">tanFovXby2_dup</span> = <span class="var">fovX_calc</span>.<span class="var">m128_f32</span>[<span class="num">0</span>];
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// Divide by Aspect Ratio at a1 + 0x18 (hardcoded at 1.777)</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// fovY_calc = tan(FovX / 2) / AspectRatio</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;"> 8</span>    <span class="var">fovY_calc</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] = <span class="var">fovX_calc</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] / *(<span class="type">float</span> *)(<span class="var">a1</span> + <span class="num">0x18</span>);
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// --- 2. The Redundant Call ---</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// Arg: fovX_calc. Result: atan(tan(FovX / 2)). Reverts back to FovX / 2</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;"> 9</span>    <span class="fn">ucrtBase_aTanf</span>(); 
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// --- 3. FovY Calculation ---</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// Check if FovY is pre-calculated (usually 0)</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">10</span>    <span class="var">fovY_val</span> = (<span class="type">__m128</span>)*(<span class="type">unsigned int</span> *)(<span class="var">a1</span> + <span class="num">0x430</span>);
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">11</span>    <span class="var">fovX_val</span> = <span class="var">fovX_calc</span>;
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// fovX_val = (FovX / 2) * 2.0 -&gt; FovX</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">12</span>    <span class="var">fovX_val</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] = <span class="var">fovX_calc</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] * <span class="num">2.0</span>; 
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">13</span>    <span class="kw">if</span> ( <span class="var">fovY_val</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] == <span class="num">0.0</span> )
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">14</span>    {
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>      <span class="comment">// Arg: fovY_calc. Result: atan(tan(FovX / 2) / AspectRatio)</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">15</span>      <span class="fn">ucrtBase_aTanf</span>(); 
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">16</span>      <span class="var">fovY_val</span> = <span class="var">fovY_calc</span>;
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>      
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>      <span class="comment">// fovY_val = 2 * atan(tan(FovX / 2) / AspectRatio)</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">17</span>      <span class="var">fovY_val</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] = <span class="var">fovY_calc</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] * <span class="num">2.0</span>;
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">18</span>    }
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// fovX_val = FovX / 2</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">19</span>    <span class="var">fovX_val</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] = <span class="var">fovX_val</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] * <span class="num">0.5</span>;
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// Arg: fovX_val. Result: fovX_val = tan(FovX / 2)</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">20</span>    <span class="fn">ucrtBase_Tanf</span>(); 
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">21</span>    <span class="var">xScale</span> = (<span class="type">__m128</span>)<span class="num">0x3F800000u</span>; <span class="comment">// 1.0f</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// fovY_val = FovY / 2</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">22</span>    <span class="var">fovY_val</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] = <span class="var">fovY_val</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] * <span class="num">0.5</span>;
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// Save tan(FovX / 2) for later calculations</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">23</span>    <span class="var">tan_fovX_half_saved</span> = <span class="var">fovX_val</span>; 
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// --- 4. Final xScale Calculation ---</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// xScale = 1.0 / tan(FovX / 2)</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">24</span>    <span class="var">xScale</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] = <span class="num">1.0</span> / <span class="var">fovX_val</span>.<span class="var">m128_f32</span>[<span class="num">0</span>];
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// Arg: fovY_val. Result: fovY_val = tan(FovY / 2)</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">25</span>    <span class="fn">ucrtBase_Tanf</span>(); 
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">26</span>    <span class="var">v39</span> = (<span class="type">__m128</span>)*(<span class="type">unsigned int</span> *)(<span class="var">a1</span> + <span class="num">0x428</span>); <span class="comment">// Load 0.0f</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">27</span>    <span class="var">v40</span> = (<span class="type">__m128</span> *)(<span class="var">a1</span> + <span class="num">0xF0</span>); <span class="comment">// Pointer to Row 0</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">28</span>    <span class="var">v41</span> = <span class="var">a1</span> + <span class="num">0x130</span>;
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// Save tan(FovY / 2) for later calculations</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">29</span>    <span class="var">tan_fovY_half_save</span> = <span class="var">fovY_val</span>; 
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">30</span>    <span class="var">v43</span> = (<span class="type">__m128</span>)<span class="num">0x3F800000u</span>; <span class="comment">// 1.0f</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">31</span>    <span class="var">yScale</span> = (<span class="type">__m128</span>)<span class="num">0x3F800000u</span>; <span class="comment">// 1.0f</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// --- 5. Final yScale Calculation ---</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// yScale = 1.0 / tan(FovY / 2)</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">32</span>    <span class="var">yScale</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] = <span class="num">1.0</span> / <span class="var">fovY_val</span>.<span class="var">m128_f32</span>[<span class="num">0</span>];
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// --- 6. Depth Mapping Construction (Projection Matrix) ---</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// Calculate zNear - zFar</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">33</span>    <span class="var">v45</span> = <span class="var">zNear</span>;
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">34</span>    <span class="var">v45</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] = <span class="var">zNear</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] - <span class="var">zFar</span>.<span class="var">m128_f32</span>[<span class="num">0</span>];
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// Load the asymmetric frustum offset (0.13)</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">35</span>    <span class="var">anomaly_offset</span> = (<span class="type">__m128</span>)*(<span class="type">unsigned int</span> *)(<span class="var">a1</span> + <span class="num">0x42C</span>);
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// Pack and store Row 1: [0, yScale, 0, 0]</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">36</span>    *(<span class="type">__m128</span> *)(<span class="var">a1</span> + <span class="num">0x100</span>) = <span class="fn">_mm_unpacklo_ps</span>((<span class="type">__m128</span>)<span class="num">0LL</span>, <span class="fn">_mm_unpacklo_ps</span>(<span class="var">yScale</span>, (<span class="type">__m128</span>)<span class="num">0LL</span>));
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// v43 = 1.0 / (zNear - zFar)</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">37</span>    <span class="var">v43</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] = <span class="num">1.0</span> / (<span class="type">float</span>)(<span class="var">zNear</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] - <span class="var">zFar</span>.<span class="var">m128_f32</span>[<span class="num">0</span>]);
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// Pack and store Row 0: [xScale, 0, 0, 0]</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">38</span>    *(<span class="type">__m128</span> *)(<span class="var">a1</span> + <span class="num">0xF0</span>) = <span class="fn">_mm_unpacklo_ps</span>(<span class="fn">_mm_unpacklo_ps</span>(<span class="var">xScale</span>, (<span class="type">__m128</span>)<span class="num">0LL</span>), (<span class="type">__m128</span>)<span class="num">0LL</span>);
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">39</span>    <span class="var">zFarByzNearNegzFar</span> = <span class="var">v43</span>;
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// zFarByzNearNegzFar = (1.0 / (zNear - zFar) * zFar)</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">40</span>    <span class="var">zFarByzNearNegzFar</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] = <span class="var">v43</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] * <span class="var">zFar</span>.<span class="var">m128_f32</span>[<span class="num">0</span>];
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// Pack and store Row 2: [0, 0.13, zFar / (zNear - zFar), -1.0]</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// Note: 0xBF800000 is -1.0f, v39 is always 0</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">41</span>    *(<span class="type">__m128</span> *)(<span class="var">a1</span> + <span class="num">0x110</span>) = <span class="fn">_mm_unpacklo_ps</span>(<span class="fn">_mm_unpacklo_ps</span>(<span class="var">v39</span>, <span class="var">zFarByzNearNegzFar</span>), <span class="fn">_mm_unpacklo_ps</span>(<span class="var">anomaly_offset</span>, (<span class="type">__m128</span>)<span class="num">0xBF800000</span>));
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// Modifying zFar in place: zFar = zFar * zNear</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">42</span>    <span class="var">zFar</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] = <span class="var">zFar</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] * <span class="var">zNear</span>.<span class="var">m128_f32</span>[<span class="num">0</span>];
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">43</span>    <span class="var">v48</span> = <span class="var">zFar</span>; 
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// v48 = (zFar * zNear) * (1.0 / (zNear - zFar))</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">44</span>    <span class="var">v48</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] = <span class="var">zFar</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] * <span class="var">v43</span>.<span class="var">m128_f32</span>[<span class="num">0</span>];
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// Used later for inverse Projection calculation</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">45</span>    <span class="var">v45</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] = <span class="var">v45</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] / <span class="var">zFar</span>.<span class="var">m128_f32</span>[<span class="num">0</span>]; 
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// Pack Row 3: [0, 0, (zFar * zNear) / (zNear - zFar), 0]</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">46</span>    <span class="var">row3_packed</span> = <span class="fn">_mm_unpacklo_ps</span>(<span class="fn">_mm_unpacklo_ps</span>((<span class="type">__m128</span>)<span class="num">0LL</span>, <span class="var">v48</span>), (<span class="type">__m128</span>)<span class="num">0LL</span>);
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">47</span>    <span class="var">v50</span> = (<span class="type">__m128</span>)<span class="num">0x3F800000u</span>; <span class="comment">// 1.0f </span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// Store Row 3</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">48</span>    *(<span class="type">__m128</span> *)(<span class="var">a1</span> + <span class="num">0x120</span>) = <span class="var">row3_packed</span>;
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// --- 7. Inverse Projection Matrix Construction ---</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// Apply asymmetric offset (0.13) to tan(FovY/2)</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">49</span>    <span class="var">tan_fovY_half_save</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] = <span class="var">fovY_val</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] * *(<span class="type">float</span> *)(<span class="var">a1</span> + <span class="num">0x42C</span>); <span class="comment">// 0.1299999952</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// Apply X-offset (0.0) to tan(FovX/2)</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">50</span>    <span class="var">tan_fovX_half_save</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] = <span class="var">fovX_val</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] * *(<span class="type">float</span> *)(<span class="var">a1</span> + <span class="num">0x428</span>); <span class="comment">// 0.0</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// Calculate 1.0 / zNear</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">51</span>    <span class="var">v50</span>.<span class="var">m128_f32</span>[<span class="num">0</span>] = <span class="num">1.0</span> / <span class="var">zNear</span>.<span class="var">m128_f32</span>[<span class="num">0</span>];
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// Store Inverse Matrix Row 0: [tan(FovX/2), 0, 0, 0]</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">52</span>    *(<span class="type">__m128</span> *)(<span class="var">a1</span> + <span class="num">0x130</span>) = <span class="fn">_mm_unpacklo_ps</span>(<span class="fn">_mm_unpacklo_ps</span>(<span class="var">fovX_val</span>, (<span class="type">__m128</span>)<span class="num">0LL</span>), (<span class="type">__m128</span>)<span class="num">0LL</span>);
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// Store Inverse Matrix Row 1: [0, tan(FovY/2), 0, 0]</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">53</span>    *(<span class="type">__m128</span> *)(<span class="var">a1</span> + <span class="num">0x140</span>) = <span class="fn">_mm_unpacklo_ps</span>((<span class="type">__m128</span>)<span class="num">0LL</span>, <span class="fn">_mm_unpacklo_ps</span>(<span class="var">fovY_val</span>, (<span class="type">__m128</span>)<span class="num">0LL</span>));
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// Store Inverse Matrix Row 2: [0, 0, 0, near-far/far*near]</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">54</span>    *(<span class="type">__m128</span> *)(<span class="var">a1</span> + <span class="num">0x150</span>) = <span class="fn">_mm_unpacklo_ps</span>((<span class="type">__m128</span>)<span class="num">0LL</span>, <span class="fn">_mm_unpacklo_ps</span>((<span class="type">__m128</span>)<span class="num">0LL</span>, <span class="var">v45</span>));
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    <span class="comment">// Store Inverse Matrix Row 3: [0, tan(fovY/2)*0.13, -1, 1/near]</span>
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">55</span>    *(<span class="type">__m128</span> *)(<span class="var">a1</span> + <span class="num">0x160</span>) = <span class="fn">_mm_unpacklo_ps</span>(
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>                                <span class="fn">_mm_unpacklo_ps</span>(<span class="var">tan_fovX_half_save</span>, (<span class="type">__m128</span>)<span class="num">0xBF800000</span>),
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>                                <span class="fn">_mm_unpacklo_ps</span>(<span class="var">tan_fovY_half_save</span>, <span class="var">v50</span>));
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">  </span>    
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">56</span>    *(<span class="type">float</span> *)(<span class="var">a1</span> + <span class="num">0x1C</span>) = <span class="num">1.0</span> / <span class="fn">fminf</span>(<span class="var">tanFovXby2_dup</span>, <span class="var">v34</span>.<span class="var">m128_f32</span>[<span class="num">0</span>]);
+<span style="color:#555;user-select:none;display:inline-block;width:24px;text-align:right;margin-right:12px;border-right:1px solid #444;padding-right:8px;">57</span>  }
+</div>
+
+<h3 id="conclusion-owning-the-pipeline"><strong>Conclusion: Owning the Pipeline</strong></h3>
+
+<p>And there we have it. We have successfully reverse-engineered the complete perspective and inverse projection matrix construction inside the Dunia Engine.</p>
+
+<p>We are now free to Intercept, Modify and Read the matrices, We now control what the game can see.</p>
+
+<p>A Trampoline hook here and we can control how the game engine goes from View -&gt; Clip space.</p>
+
+<p>Hopefully, this series has demystified the process and given you the tools to tackle your own reverse engineering targets. The math might look intimidating at first, but at the CPU 
+level, it all breaks down to logic, patterns, and proving your hypotheses.</p>
+
+<p>Happy reversing!</p>
+
+<div class="post-nav">
+  <a href="/Proj-Blog/part-5.2-reversing-projection-matrix/">&laquo; Part 5.2: Reversing Construction (Depth)</a>
+</div>
+
+  </div><a class="u-url" href="/Proj-Blog/part-6-reversing-inverse-projection-matrix/" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/Proj-Blog/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Math at Scale: Reversing the AAA Projection Matrix</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">z1rp</li><li><a class="u-email" href="mailto:Zer0_1rp@proton.me">Zer0_1rp@proton.me</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>Reversing The Construction Of The Perspective-Projection Matrix</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
+
