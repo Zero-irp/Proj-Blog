@@ -59,7 +59,7 @@ Now verify all matrices manually till we find a Projection Matrix that is close 
 
 This seems to be a Projection Matrix that comes close but still not "Textbook layout":
 
-![ESP-Image1](/Proj-Blog/assets/images/part-4/CE-proj.png)
+![ESP-Image1](/Proj-Blog/assets/images/part-4/CE-Proj.png)
 
 > As I've said before Game engines need not follow convention
 

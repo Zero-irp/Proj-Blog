@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="http://localhost:4000/Proj-Blog/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/Proj-Blog/" rel="alternate" type="text/html" /><updated>2026-05-19T17:28:41+05:30</updated><id>http://localhost:4000/Proj-Blog/feed.xml</id><title type="html">Math at Scale: Reversing the AAA Projection Matrix</title><subtitle>Reversing The Construction Of The Perspective-Projection Matrix</subtitle><author><name>z1rp</name></author><entry><title type="html">Part 1: Introduction</title><link href="http://localhost:4000/Proj-Blog/part-1-intro/" rel="alternate" type="text/html" title="Part 1: Introduction" /><published>2026-04-04T00:00:00+05:30</published><updated>2026-04-04T00:00:00+05:30</updated><id>http://localhost:4000/Proj-Blog/part-</id><content type="html" xml:base="http://localhost:4000/Proj-Blog/part-1-intro/"><![CDATA[]]></content><author><name>z1rp</name></author><summary type="html"><![CDATA[]]></summary></entry><entry><title type="html">Part 1: Introduction</title><link href="http://localhost:4000/Proj-Blog/part-1-intro/" rel="alternate" type="text/html" title="Part 1: Introduction" /><published>2026-04-04T00:00:00+05:30</published><updated>2026-04-04T00:00:00+05:30</updated><id>http://localhost:4000/Proj-Blog/part-1-intro</id><content type="html" xml:base="http://localhost:4000/Proj-Blog/part-1-intro/"><![CDATA[<style>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="http://localhost:4000/Proj-Blog/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/Proj-Blog/" rel="alternate" type="text/html" /><updated>2026-05-19T18:32:54+05:30</updated><id>http://localhost:4000/Proj-Blog/feed.xml</id><title type="html">Math at Scale: Reversing the AAA Projection Matrix</title><subtitle>Reversing The Construction Of The Perspective-Projection Matrix</subtitle><author><name>z1rp</name></author><entry><title type="html">Part 1: Introduction</title><link href="http://localhost:4000/Proj-Blog/part-1-intro/" rel="alternate" type="text/html" title="Part 1: Introduction" /><published>2026-04-04T00:00:00+05:30</published><updated>2026-04-04T00:00:00+05:30</updated><id>http://localhost:4000/Proj-Blog/part-</id><content type="html" xml:base="http://localhost:4000/Proj-Blog/part-1-intro/"><![CDATA[]]></content><author><name>z1rp</name></author><summary type="html"><![CDATA[]]></summary></entry><entry><title type="html">Part 1: Introduction</title><link href="http://localhost:4000/Proj-Blog/part-1-intro/" rel="alternate" type="text/html" title="Part 1: Introduction" /><published>2026-04-04T00:00:00+05:30</published><updated>2026-04-04T00:00:00+05:30</updated><id>http://localhost:4000/Proj-Blog/part-1-intro</id><content type="html" xml:base="http://localhost:4000/Proj-Blog/part-1-intro/"><![CDATA[<style>
 .post-nav {
   display: flex;
   margin-top: 40px;
@@ -110,7 +110,65 @@ tank CPU efficiency you can never be too sure. The Dunia Engine used for Far Cry
 <h3 id="write-up-outline"><strong>Write-Up Outline:</strong></h3>
 
 <ul>
-  <li>TO BE ADDED!</li>
+  <li><strong><a href="../part-1-intro/">Part 1: Introduction</a></strong>
+    <ul>
+      <li><a href="../part-1-intro/#prerequisites">Prerequisites:</a></li>
+      <li><a href="../part-1-intro/#whats-the-point-of-doing-this">What’s the point of doing this?</a></li>
+    </ul>
+  </li>
+  <li><strong><a href="../part-2-projection-matrix/">Part 2: What is the Projection Matrix?</a></strong>
+    <ul>
+      <li><a href="../part-2-projection-matrix/#the-bare-minimum-what-is-it">What is  the Projection Matrix?</a></li>
+      <li><a href="../part-2-projection-matrix/#the-memory-layout-what-we-actually-care-about">The Memory Layout:</a></li>
+    </ul>
+  </li>
+  <li><strong><a href="../part-3-methods-to-find-proj-mat/">Part 3: Methods to Find The Projection Matrix</a></strong>
+    <ul>
+      <li><a href="../part-3-methods-to-find-proj-mat/#1-the-1-1--up-down-trick">1. The 1,-1 / Up-Down Trick:</a></li>
+      <li><a href="../part-3-methods-to-find-proj-mat/#2-focal-length-scanning">2. Focal Length Scanning:</a></li>
+      <li><a href="../part-3-methods-to-find-proj-mat/#3-brute-force">3. Brute Force:</a></li>
+      <li><a href="../part-3-methods-to-find-proj-mat/#4-tracing-flow">4. Tracing Flow:</a></li>
+      <li><a href="../part-3-methods-to-find-proj-mat/#5-pattern-recognition-jitter-tables">5. Pattern Recognition (Jitter Tables):</a></li>
+      <li><a href="../part-3-methods-to-find-proj-mat/#6-the-graphics-debugger-route-renderdoc-to-memory">6. The Graphics Debugger Route (RenderDoc to Memory):</a></li>
+    </ul>
+  </li>
+  <li><strong><a href="../part-4-finding-projection-matrix/">Part 4: Finding and Tracing Projection Construction</a></strong>
+    <ul>
+      <li><a href="../part-4-finding-projection-matrix/#why">Spotting Perspective Projection Construction:</a></li>
+      <li><a href="../part-4-finding-projection-matrix/#visual-verification">Visual Confirmation of Projection Construction</a></li>
+    </ul>
+  </li>
+  <li><strong><a href="../part-5.1-reversing-projection-matrix/">Part 5.1: Reversing Construction of the Projection Matrix (X &amp; Y Scales)</a></strong>
+    <ul>
+      <li><a href="../part-5.1-reversing-projection-matrix/#reversing-construction-of-the-perspective-projection-matrix">Reversing Construction of the Perspective-Projection Matrix</a></li>
+      <li><a href="../part-5.1-reversing-projection-matrix/#xscale-construction">xScale Construction:</a></li>
+      <li><a href="../part-5.1-reversing-projection-matrix/#yscale-construction">yScale Construction:</a></li>
+      <li><a href="../part-5.1-reversing-projection-matrix/#putting-it-all-together-the-cleaned-code">Putting It All Together: The Cleaned Code</a></li>
+    </ul>
+  </li>
+  <li><strong><a href="../part-5.2-reversing-projection-matrix/">Part 5.2: Reversing Construction of the Projection Matrix (Depth Mapping)</a></strong>
+    <ul>
+      <li><a href="../part-5.2-reversing-projection-matrix/#row-2">Depth Calculation: Row 2</a></li>
+      <li><a href="../part-5.2-reversing-projection-matrix/#the-anomaly--asymmetric-offset">The Anomaly / Asymmetric offset</a></li>
+      <li><a href="../part-5.2-reversing-projection-matrix/#row3">Depth Calculation: Row 3</a></li>
+      <li><a href="../part-5.2-reversing-projection-matrix/#putting-it-all-into-the-projection-matrix">Putting the values into the Projection Matrix:</a></li>
+      <li><a href="../part-5.2-reversing-projection-matrix/#putting-the-code-together">Putting the code together:</a></li>
+      <li><a href="../part-5.2-reversing-projection-matrix/#final-layout">Final Layout:</a></li>
+      <li><a href="../part-5.2-reversing-projection-matrix/#the-payoff-owning-the-camera">The Payoff: Owning the Camera</a></li>
+    </ul>
+  </li>
+  <li><strong><a href="../part-6-reversing-inverse-projection-matrix/">Part 6: Reversing Construction of the Inverse Projection Matrix</a></strong>
+    <ul>
+      <li><a href="../part-6-reversing-inverse-projection-matrix/#row-0">Inverse Projection: Row 0</a></li>
+      <li><a href="../part-6-reversing-inverse-projection-matrix/#row-1">Inverse Projection: Row 1</a></li>
+      <li><a href="../part-6-reversing-inverse-projection-matrix/#row-2">Inverse Projection: Row 2</a></li>
+      <li><a href="../part-6-reversing-inverse-projection-matrix/#row-3">Inverse Projection: Row 3</a></li>
+      <li><a href="../part-6-reversing-inverse-projection-matrix/#final-layout">Final Layout:</a></li>
+      <li><a href="../part-6-reversing-inverse-projection-matrix/#reversing-insight">Reversing Insight</a></li>
+      <li><a href="../part-6-reversing-inverse-projection-matrix/#the-full-picture">The Full Picture:</a></li>
+      <li><a href="../part-6-reversing-inverse-projection-matrix/#conclusion-owning-the-pipeline">Conclusion: Owning the Pipeline</a></li>
+    </ul>
+  </li>
 </ul>
 
 <p>Snippets of what we will be working with:</p>
@@ -456,7 +514,7 @@ you will usually find the CPU-side memory address instantly.</p>
 
 <p>This seems to be a Projection Matrix that comes close but still not “Textbook layout”:</p>
 
-<p><img src="/Proj-Blog/assets/images/part-4/CE-proj.png" alt="ESP-Image1" /></p>
+<p><img src="/Proj-Blog/assets/images/part-4/CE-Proj.png" alt="ESP-Image1" /></p>
 
 <blockquote>
   <p>As I’ve said before Game engines need not follow convention</p>
