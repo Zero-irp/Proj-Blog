@@ -6,7 +6,7 @@ title: "Index"
 # Reversing The Construction Of The Perspective-Projection Matrix (Game Engine Reversing)
 
 Ever wondered how the projection matrix is calculated per frame in a game engine? No? Good. Because we’re going to do it anyway...  
-Feel free to reach out to at: Discord: zer0_1rp Reddit: u/zer0_1rp X: zer0_irp
+Feel free to reach out to at: Discord: zer0_1rp Reddit: u/zer0_1rp X: zer0_1rp
 ## Parts
 
 - [Part 1: Introduction]({{ site.baseurl }}/part-1-intro)
